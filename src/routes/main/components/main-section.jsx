@@ -113,11 +113,30 @@ export const MainSection = () => {
   useEffect(() => {
     interpolateBackground(0);
     interpolateDesignPosition(0);
+
+    // Set initial state for fade-in element
+    gsap.set(welcomeMsgRef.current, {
+      opacity: 0,
+      y: 0,
+    });
+
     const handleScroll = () => {
-      // 중요! handleScroll 함수 안에서 interpolateBackground 함수를 호출하고 window.scrollY 값을 인자로 넘겨줍니다.
-      interpolateBackground(window.scrollY);
-      interpolateDesignPosition(window.scrollY);
+      const scrollY = window.scrollY;
+
+      // Call existing functions
+      interpolateBackground(scrollY);
+      interpolateDesignPosition(scrollY);
+
+      // Trigger fade-in after the card animations finish
+      const cardAnimationEndScrollY = maxScroll / 2;
+      const fadeInFactor = Math.min((scrollY - cardAnimationEndScrollY) / 200, 1);
+        gsap.to(welcomeMsgRef.current, {
+          opacity: fadeInFactor,
+          duration: 0,
+          ease: 'none',
+        });
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -127,7 +146,7 @@ export const MainSection = () => {
                      innerLayerClassName={`sticky top-[80px] h-[calc(100vh-80px)]`}
                      innerLayerRef={sectionRef}>
         <div className="relative flex flex-col w-full gap-8 items-start mobile:items-center">
-          <div className="flex flex-col items-start mobile:items-center gap-8">
+          <div ref={welcomeMsgRef} className="flex flex-col items-start mobile:items-center gap-8">
             <h1 className="text-[64px] mobile:text-[32px] leading-normal whitespace-pre-wrap text-left mobile:text-center nanum-extra-bold text-black dark:text-white">
               <span>멋쟁이</span>{' '}
               <s className="text-gray-500 dark:text-gray-400">사자</s>
