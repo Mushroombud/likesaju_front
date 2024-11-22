@@ -1,26 +1,16 @@
 import { Button } from 'components/button';
 import { SectionLayout } from './section-layout';
-import { useEffect, useState, useRef } from 'react';
-import gsap from 'gsap';
+import {useEffect, useRef} from "react";
+import {gsap} from "gsap";
 
 const GRADIENT_TOP_START_COLOR = '#170F49';
 const GRADIENT_TOP_END_COLOR = '#E3E6F7';
 const GRADIENT_BOTTOM_START_COLOR = '#6F6C8F';
 const GRADIENT_BOTTOM_END_COLOR = '#F7F7F7';
 
-const DEFAULT_MAX_SCROLL = 4000;
-const MOBILE_BREAKPOINT = 1024;
-
 export const MainSection = () => {
-  const [scrollY, setScrollY] = useState(0);
-  const [viewPortWidth, setViewPortWidth] = useState(window.innerWidth);
-  const [viewPortHeight, setViewPortHeight] = useState(window.innerHeight);
-  const [maxScroll, setMaxScroll] = useState(DEFAULT_MAX_SCROLL);
-  const [isMobile, setIsMobile] = useState(false);
-
-  const sectionRef = useRef(null);
-  const headingRef = useRef(null);
-  const designOuterRef = useRef(null);
+  const sectionRef = useRef(null); // 추가!
+  const designOuterRef = useRef(null); // 모두 추가!
   const designInnerRef = useRef(null);
   const welcomeMsgRef = useRef(null);
   const card1Ref = useRef(null);
@@ -29,221 +19,175 @@ export const MainSection = () => {
   const card4Ref = useRef(null);
   const lionRef = useRef(null);
 
-  useEffect(() => {
-    // 현재 브라우저의 높이에 기반하여 MAX_SCROLL 값 설정
-    const updateViewPortState = () => {
-      setViewPortWidth(window.innerWidth);
-      setViewPortHeight(window.innerHeight);
-      setMaxScroll(window.innerHeight * 4);
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    };
+  const maxScroll = window.innerHeight * 5;
 
-    updateViewPortState(); // 초기 설정
-    window.addEventListener('resize', updateViewPortState); // 창 크기 변경 시 재설정
-
-    return () => window.removeEventListener('resize', updateViewPortState);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const interpolateBackground = () => {
+  const interpolateBackground = (scrollY) => {
+    // 보간되는 값을 정할 factor 변수입니다.
+    // 0부터 window.innerHeight * 5까지 스크롤 함에 따라서 0부터 1까지 점진적으로 증가하겠죠?
     const factor = Math.min(scrollY / maxScroll, 1); // 0 ~ 1 사이 값으로 제한
+
+    //ref의 경우, react의 lifecycle에서 관리되지 않는 값중 하나입니다. 꼭 존재하는지 체크해주는 습관을 들입시다.
     if (sectionRef.current) {
+
+      //gsap.to 함수 사용, sectionRef에 연결된 div의 background 속성을 변경
+      // 어떤 값으로 바뀌어야 하는지 interpolate() 함수에
+      // 시작값, 종료값, 그리고 보간 factor를 넣어주면 계산할 수 있습니다.
       gsap.to(sectionRef.current, {
-        background: `linear-gradient(to bottom, 
+        background: `linear-gradient(to bottom,
           ${gsap.utils.interpolate(GRADIENT_TOP_START_COLOR, GRADIENT_TOP_END_COLOR, factor)},
           ${gsap.utils.interpolate(GRADIENT_BOTTOM_START_COLOR, GRADIENT_BOTTOM_END_COLOR, factor)}
         )`,
-        duration: 0.2,
-        ease: 'none',
-      });
-    }
-  };
-
-  const interpolateHeadingPosition = () => {
-    const factor =
-      scrollY < maxScroll / 2
-        ? 0
-        : Math.min(((scrollY - maxScroll / 2) * 2) / maxScroll, 1);
-    const viewportXMiddle = viewPortWidth / 2;
-    if (headingRef.current) {
-      gsap.to(headingRef.current, {
-        x: viewportXMiddle * 1.5 * factor + -viewportXMiddle * 1.5,
-        opacity: 1,
         duration: 0,
         ease: 'none',
       });
     }
   };
 
-  const interpolateDesignPosition = () => {
+  const interpolateDesignPosition = (scrollY) => {
     const factor1 =
-      scrollY < maxScroll / 2
-        ? 0
-        : Math.min(((scrollY - maxScroll / 2) * 2) / maxScroll, 1);
+        scrollY < maxScroll / 2
+            ? 0
+            : Math.min(((scrollY - maxScroll / 2) * 2) / maxScroll, 1);
 
-    const factor2 = Math.min(scrollY / (maxScroll / 2), 1);
-    const viewportXMiddle = viewPortWidth / 2;
-    const viewportYMiddle = viewPortHeight / 2;
+    // 원래 designOuterRef가 가지고 있던 x포지션 값을 받아옵니다.
     const originalX = designOuterRef.current.getBoundingClientRect().x;
-    const originalY = designOuterRef.current.getBoundingClientRect().y;
-    const offsetXFromMiddle = viewPortWidth / 2 - (originalX + 170);
+
+    // 오리지널 X를 기반으로, 뷰포트의 중앙에서 얼마나 떨어져있는지를 계산합니다.
+    const offsetXFromMiddle = window.innerWidth / 2 - (originalX + 170);
     if (designInnerRef.current) {
       gsap.to(designInnerRef.current, {
-        x: offsetXFromMiddle - offsetXFromMiddle * factor1,
-        y: isMobile && 40,
-        opacity: 1,
-        duration: 0,
-        ease: 'none',
+        //
+        x: offsetXFromMiddle * (1 - factor1),
       });
     }
+
+    const factor2 = Math.min(scrollY / (maxScroll / 2), 1);
+    const viewportYMiddle = window.innerHeight / 2;
 
     if (welcomeMsgRef.current) {
       gsap.to(welcomeMsgRef.current, {
-        y: !isMobile ? -50 : 0,
+        y: -50,
         opacity: 1 - factor2,
-        duration: 0,
-        ease: 'none',
       });
     }
 
     if (card1Ref.current) {
       gsap.to(card1Ref.current, {
-        x: !isMobile ? -180 + 30 * factor2 : -90 + 20 * factor2,
-        y: !isMobile ? 0 - 80 * factor2 : 0 - 40 * factor2,
-        rotate: 0 - 45 * factor2,
-        opacity: isMobile && 1 - factor1 * 2,
-        duration: 0,
-        ease: 'none',
+        x: -180 + 30 * factor2,
+        y: -80 * factor2,
+        rotate: -45 * factor2,
       });
     }
 
     if (card2Ref.current) {
       gsap.to(card2Ref.current, {
-        x: !isMobile ? -60 : -30,
-        y: !isMobile ? 0 - 160 * factor2 : 0 - 80 * factor2,
-        rotate: 0 - 15 * factor2,
-        opacity: isMobile && 1 - factor1 * 2,
-        duration: 0,
-        ease: 'none',
+        x: -60,
+        y: -160 * factor2,
+        rotate: -15 * factor2,
       });
     }
 
     if (card3Ref.current) {
       gsap.to(card3Ref.current, {
-        x: !isMobile ? 60 : 30,
-        y: !isMobile ? 0 - 160 * factor2 : 0 - 80 * factor2,
-        rotate: 0 + 15 * factor2,
-        opacity: isMobile && 1 - factor1 * 2,
-        duration: 0,
-        ease: 'none',
+        x: 60,
+        y: -160 * factor2,
+        rotate: 15 * factor2,
       });
     }
 
     if (card4Ref.current) {
       gsap.to(card4Ref.current, {
-        x: !isMobile ? 180 - 30 * factor2 : 90 - 20 * factor2,
-        y: !isMobile ? 0 - 80 * factor2 : 0 - 40 * factor2,
-        rotate: 0 + 45 * factor2,
-        opacity: isMobile && 1 - factor1 * 2,
-        duration: 0,
-        ease: 'none',
+        x: 180 - 30 * factor2,
+        y: -80 * factor2,
+        rotate: 45 * factor2,
       });
     }
 
     if (lionRef.current) {
       gsap.to(lionRef.current, {
-        y: viewportYMiddle * 1.5 - viewportYMiddle * 1.5 * factor2,
-        opacity: isMobile && 1 - factor1 * 2,
-        duration: 0,
-        ease: 'none',
+        y: viewportYMiddle * 1.5 * (1 - factor2),
       });
     }
   };
 
   useEffect(() => {
-    interpolateBackground();
-    interpolateHeadingPosition();
-    interpolateDesignPosition();
-  }, [scrollY, isMobile]);
+    interpolateBackground(0);
+    interpolateDesignPosition(0);
+    const handleScroll = () => {
+      // 중요! handleScroll 함수 안에서 interpolateBackground 함수를 호출하고 window.scrollY 값을 인자로 넘겨줍니다.
+      interpolateBackground(window.scrollY);
+      interpolateDesignPosition(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <SectionLayout
-      outerLayerClassName={'h-[500vh] flex items-start'}
-      innerLayerClassName={`sticky top-[80px] h-[calc(100vh-80px)]`}
-      innerLayerRef={sectionRef}
-    >
-      <div className="relative flex flex-col w-full gap-8 items-start mobile:items-center">
-        <div
-          ref={headingRef}
-          className="flex flex-col items-start mobile:items-center gap-8"
-        >
-          <h1 className="text-[64px] mobile:text-[32px] leading-normal whitespace-pre-wrap text-left mobile:text-center nanum-extra-bold text-black dark:text-white">
-            <span>멋쟁이</span>{' '}
-            <s className="text-gray-500 dark:text-gray-400">사자</s>
-            {'\n'}
-            <span>사주처럼</span>
-          </h1>
-          <p className="text-lg mobile:text-sm text-left mobile:text-center mobile:whitespace-pre-wrap dark:text-white">
-            {'오늘의 사주 운세를 확인하고,\n친구에게 공유하자!'}
-          </p>
-          <a href="/saju">
-            <Button>멋사주 시작하기</Button>
-          </a>
-        </div>
-        <div
-          ref={designOuterRef}
-          className="absolute -bottom-10 right-0 size-[340px]"
-        >
-          <div
-            className="w-full h-full flex justify-center"
-            ref={designInnerRef}
-          >
-            <p
-              ref={welcomeMsgRef}
-              className="font-extrabold text-[44px] mobile:text-[28px] text-white text-nowrap w-fit"
-            >
-              오늘의 운세가 궁금해?
+      <SectionLayout outerLayerClassName={'h-[500vh] flex items-start'}
+                     innerLayerClassName={`sticky top-[80px] h-[calc(100vh-80px)]`}
+                     innerLayerRef={sectionRef}>
+        <div className="relative flex flex-col w-full gap-8 items-start mobile:items-center">
+          <div className="flex flex-col items-start mobile:items-center gap-8">
+            <h1 className="text-[64px] mobile:text-[32px] leading-normal whitespace-pre-wrap text-left mobile:text-center nanum-extra-bold text-black dark:text-white">
+              <span>멋쟁이</span>{' '}
+              <s className="text-gray-500 dark:text-gray-400">사자</s>
+              {'\n'}
+              <span>사주처럼</span>
+            </h1>
+            <p className="text-lg mobile:text-sm text-left mobile:text-center mobile:whitespace-pre-wrap dark:text-white">
+              {'오늘의 사주 운세를 확인하고,\n친구에게 공유하자!'}
             </p>
-            <img
-              ref={lionRef}
-              src="/images/snulion.png"
-              className="absolute z-50 mobile:scale-[50%] object-contain"
-              alt="Main Illustration"
-            />
-            <img
-              ref={card1Ref}
-              src="/images/card1.png"
-              className="absolute scale-[60%] mobile:scale-[30%] object-contain"
-              alt="Card1 Illustration"
-            />
-            <img
-              ref={card2Ref}
-              src="/images/card2.png"
-              className="absolute scale-[60%] mobile:scale-[30%] object-contain"
-              alt="Card2 Illustration"
-            />
-            <img
-              ref={card3Ref}
-              src="/images/card3.png"
-              className="absolute scale-[60%] mobile:scale-[30%] object-contain"
-              alt="Card3 Illustration"
-            />
-            <img
-              ref={card4Ref}
-              src="/images/card4.png"
-              className="absolute scale-[60%] mobile:scale-[30%] object-contain"
-              alt="Card4 Illustration"
-            />
+            <a href="/saju">
+              <Button>멋사주 시작하기</Button>
+            </a>
+          </div>
+          <div
+              ref={designOuterRef}
+              className="absolute -bottom-10 right-0 size-[340px]"
+          >
+            <div
+                className="w-full h-full flex justify-center"
+                ref={designInnerRef}
+            >
+              <p
+                  ref={welcomeMsgRef}
+                  className="font-extrabold text-[44px] mobile:text-[28px] text-white text-nowrap w-fit"
+              >
+                오늘의 운세가 궁금해?
+              </p>
+              <img
+                  ref={lionRef}
+                  src="/images/snulion.png"
+                  className="absolute z-50 mobile:scale-[50%] object-contain"
+                  alt="Main Illustration"
+              />
+              <img
+                  ref={card1Ref}
+                  src="/images/card1.png"
+                  className="absolute scale-[60%] mobile:scale-[30%] object-contain"
+                  alt="Card1 Illustration"
+              />
+              <img
+                  ref={card2Ref}
+                  src="/images/card2.png"
+                  className="absolute scale-[60%] mobile:scale-[30%] object-contain"
+                  alt="Card2 Illustration"
+              />
+              <img
+                  ref={card3Ref}
+                  src="/images/card3.png"
+                  className="absolute scale-[60%] mobile:scale-[30%] object-contain"
+                  alt="Card3 Illustration"
+              />
+              <img
+                  ref={card4Ref}
+                  src="/images/card4.png"
+                  className="absolute scale-[60%] mobile:scale-[30%] object-contain"
+                  alt="Card4 Illustration"
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </SectionLayout>
+      </SectionLayout>
   );
 };

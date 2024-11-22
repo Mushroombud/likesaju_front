@@ -57,8 +57,9 @@ export const ChatRoom = () => {
       message: message,
       chat_room_id: chatRoomId,
     });
+
     setMessage('');
-  }, [message, chatRoomId, sendJsonMessage]);
+  }, [message, chatRoomId]);
 
   return (
     <div className="flex flex-1 flex-col h-[calc(100vh-80px)] overflow-y-auto animate-fadeIn">

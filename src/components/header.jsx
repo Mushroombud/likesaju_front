@@ -5,9 +5,8 @@ import coin from '../assets/icons/coin.png';
 import { removeCookie } from '../utils/cookie';
 import { signOut } from '../apis/api';
 import { useSelector, useDispatch } from 'react-redux';
-import { setLoginState, setUserProfile } from '.././redux/user-slice';
-import { ProfileImage } from '../components/profile-image';
-import { cn } from '../utils/cn';
+import { setLoginState, setUserProfile } from '../redux/user-slice';
+import { ProfileImage } from './profile-image';
 
 export const Header = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -54,29 +53,27 @@ export const Header = () => {
   };
 
   return (
-    <div className="sticky top-0 w-full flex flex-row items-center justify-between bg-white drop-shadow h-[80px] px-[68px] mobile:px-[20px] z-[999]">
+    <div className="sticky top-0 w-full flex flex-row items-center justify-between bg-white drop-shadow h-[80px] px-[68px] z-[999]">
       <Link
         to="/"
-        className="text-[26px] mobile:text-xl font-extrabold text-[#14142B] leading-9 tracking-tighter"
+        className="text-[26px] font-extrabold text-[#14142B] leading-9 tracking-tighter"
       >
         멋쟁이 사주처럼
       </Link>
-      <div className="flex flex-row items-center gap-[50px] mobile:gap-[20px]">
+      <div className="flex flex-row items-center gap-[50px]">
         <Link
           to="/saju"
-          className={cn(
-            'mobile:text-sm',
-            location.pathname === '/saju' ? activeLinkStyle : linkStyle,
-          )}
+          className={
+            location.pathname === '/saju' ? activeLinkStyle : linkStyle
+          }
         >
           사주
         </Link>
         <Link
           to="/chat"
-          className={cn(
-            'mobile:text-sm',
-            location.pathname === '/chat' ? activeLinkStyle : linkStyle,
-          )}
+          className={
+            location.pathname === '/chat' ? activeLinkStyle : linkStyle
+          }
         >
           채팅
         </Link>
@@ -86,7 +83,7 @@ export const Header = () => {
             onMouseOver={() => setShowProfile(true)}
             onMouseLeave={() => setShowProfile(false)}
           >
-            <span className="text-xl mobile:text-sm font-bold text-[#14142B] leading-6 hover:font-extrabold hover:text-[#4A3AFF] hover:cursor-pointer">
+            <span className="text-xl font-bold text-[#14142B] leading-6 hover:font-extrabold hover:text-[#4A3AFF] hover:cursor-pointer">
               프로필
             </span>
             {showProfile && (

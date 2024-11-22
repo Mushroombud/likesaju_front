@@ -52,7 +52,7 @@ export const AddChatModal = ({ setIsModalOpen }) => {
   };
 
   const onClickCancel = () => {
-    alert('취소');
+    setIsModalOpen(false);
   };
 
   const onClickAdd = async () => {
@@ -72,6 +72,7 @@ export const AddChatModal = ({ setIsModalOpen }) => {
       alert('Failed to create chatroom. Please try again.');
     }
   };
+  
   const filteredProfiles = profiles.filter((profile) =>
     profile.nickname.toLowerCase().includes(searchText.toLowerCase()),
   );

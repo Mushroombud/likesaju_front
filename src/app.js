@@ -9,9 +9,9 @@ import SetProfilePage from './routes/set-profile/pages/set-profile-page';
 import Auth from './routes/login/pages/auth';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import ApprovalPage from 'routes/pay/pages/approval-page';
-import CancelPage from 'routes/pay/pages/cancel-page';
-import FailPage from 'routes/pay/pages/fail-page';
+import ApprovalPage from 'routes/pages/approval-page';
+import CancelPage from 'routes/pages/cancel-page';
+import FailPage from 'routes/pages/fail-page';
 
 function App() {
   return (
@@ -33,7 +33,6 @@ function App() {
               <Route path="/approval" element={<ApprovalPage />} />
               <Route path="/cancel" element={<CancelPage />} />
               <Route path="/fail" element={<FailPage />} />
-              <Route path="/test" element={<SajuPage />} />
             </Routes>
           </div>
         </div>
@@ -46,8 +45,8 @@ export default App;
 
 function PrivateRoute({ origin, profilePath = '/set-profile', ...rest }) {
   const nickname = useSelector((state) => state.user.nickname);
-  const idState = useSelector((state) => state.user.idState);
-  if (idState === null) {
+  const isLogin = useSelector((state) => state.user.isLogin);
+  if (!isLogin) {
     return <Navigate to="/login" />;
   } else {
     if (nickname === null) {

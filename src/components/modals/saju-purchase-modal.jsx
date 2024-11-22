@@ -36,7 +36,12 @@ const BtnsComponent = ({ point, setIsModalOpen, setIsPointModalOpen }) => {
     console.log(response);
     if (response) {
       dispatch(setLockState(false));
-      dispatch(setUserProfile({ ...data, remaining_points: response.remaining_points }));
+      dispatch(
+        setUserProfile({
+          ...data,
+          remaining_points: response.remaining_points,
+        }),
+      );
       setIsModalOpen(false);
     }
   };
