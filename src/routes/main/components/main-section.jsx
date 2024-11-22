@@ -114,7 +114,6 @@ export const MainSection = () => {
     interpolateBackground(0);
     interpolateDesignPosition(0);
 
-    // Set initial state for fade-in element
     gsap.set(welcomeMsgRef.current, {
       opacity: 0,
       y: 0,
@@ -123,11 +122,9 @@ export const MainSection = () => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
 
-      // Call existing functions
       interpolateBackground(scrollY);
       interpolateDesignPosition(scrollY);
 
-      // Trigger fade-in after the card animations finish
       const cardAnimationEndScrollY = maxScroll / 2;
       const fadeInFactor = Math.min((scrollY - cardAnimationEndScrollY) / 200, 1);
         gsap.to(welcomeMsgRef.current, {
